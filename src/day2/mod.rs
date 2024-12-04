@@ -45,7 +45,7 @@ fn is_safe(levels: Vec<i32> ) -> (bool, Vec<usize>) {
 
 
 fn bad_problem_dampened(mut levels:  Vec<i32>) -> bool {
-    // This is bad because it is brute force, but it is nice, how easy it was to implement.
+    // This is bad because it is brute force, but it is nice how easy it was to implement.
     for index in 0..levels.len(){
         let mut temp = levels.remove(index);
         if is_safe(levels.clone()).0 {
