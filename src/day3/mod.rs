@@ -1,6 +1,6 @@
 use regex::Regex;
 
-pub fn clean_multiplication_file() -> i32{
+pub fn clean_multiplication_file() -> i32 {
     let input = include_str!("./inputs.txt");
 
     // parenthesis around \d indicate the groups we want to capture.
@@ -8,8 +8,12 @@ pub fn clean_multiplication_file() -> i32{
 
     // Extract two digits from mul(n1,n2) statements and multiply them together.
     // Return the sum.
-    multi_regex.unwrap().captures_iter(input).map(|c| {
-        let (_, [n1, n2]) = c.extract();
-        n1.parse::<i32>().unwrap() * n2.parse::<i32>().unwrap()
-    }).sum()
+    multi_regex
+        .unwrap()
+        .captures_iter(input)
+        .map(|c| {
+            let (_, [n1, n2]) = c.extract();
+            n1.parse::<i32>().unwrap() * n2.parse::<i32>().unwrap()
+        })
+        .sum()
 }

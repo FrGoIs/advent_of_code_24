@@ -2,11 +2,15 @@ pub fn get_distance_and_similarity() -> (i32, i32) {
     let input = include_str!("./inputs.txt");
     let (mut list1, mut list2) = (Vec::new(), Vec::new());
     let mut distance = 0;
-    input.lines().collect::<Vec<&str>>().into_iter().for_each(|s| {
-        let temp = s.split("   ").collect::<Vec<&str>>();
-        list1.push(temp[0].parse::<i32>().unwrap());
-        list2.push(temp[1].parse::<i32>().unwrap());
-    });
+    input
+        .lines()
+        .collect::<Vec<&str>>()
+        .into_iter()
+        .for_each(|s| {
+            let temp = s.split("   ").collect::<Vec<&str>>();
+            list1.push(temp[0].parse::<i32>().unwrap());
+            list2.push(temp[1].parse::<i32>().unwrap());
+        });
 
     list1.sort();
     list2.sort();
