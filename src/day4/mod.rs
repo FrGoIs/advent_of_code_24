@@ -15,8 +15,8 @@ enum SearchDir {
     SE,
 }
 
-pub fn count_xmas_every_dir(input_path: &str) -> i32 {
-    let chars_to_find = "XMAS".chars().collect::<Vec<_>>();
+pub fn count_sequence_every_dir(input_path: &str, sequence: &str) -> i32 {
+    let chars_to_find = sequence.chars().collect::<Vec<_>>();
     let input = fs::read_to_string(input_path).unwrap();
     let matrix: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
     let col_count = matrix[0].len();
@@ -40,6 +40,17 @@ pub fn count_xmas_every_dir(input_path: &str) -> i32 {
     }
 
     matches
+}
+pub fn count_crossed_sequence(input_path: &str, sequence: &str) -> i32 {
+    let chars_to_find = sequence.chars().collect::<Vec<_>>();
+    let input = fs::read_to_string(input_path).unwrap();
+    let matrix: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+    let col_count = matrix[0].len();
+    let row_count = matrix.len();
+    let mut matches = 0;
+
+
+    3
 }
 
 fn check_for_sequence(
@@ -143,20 +154,20 @@ fn get_search_dirs(
 ) -> Vec<SearchDir> {
     let mut search_dirs: Vec<SearchDir> = Vec::new();
 
+    // Can go up
     if row - sequence_length + 1 >= 0 {
-        // Can go up
         search_dirs.push(SearchDir::N);
     }
+    // Can go left
     if col - sequence_length + 1 >= 0 {
-        // Can go left
         search_dirs.push(SearchDir::W);
     }
+    // can go right
     if col_count - col - sequence_length >= 0 {
-        // can go right
         search_dirs.push(SearchDir::E);
     }
+    // Can go down
     if row_count - row - sequence_length >= 0 {
-        // Can go down
         search_dirs.push(SearchDir::S);
     }
 
@@ -182,12 +193,17 @@ mod day4_tests {
 
     #[test]
     fn finds_test_xmas() {
-        let result = count_xmas_every_dir(TEST_PATH);
+        let result = count_sequence_every_dir(TEST_PATH, "XMAS");
         assert_eq!(result, 18);
     }
     #[test]
     fn finds_xmas_every_dir() {
-        let result = count_xmas_every_dir(INPUT_PATH);
+        let result = count_sequence_every_dir(INPUT_PATH, "XMAS");
         assert_eq!(result, 2543);
+    }
+
+    #[test]
+    fn finds_crossed_sequence() {
+        assert_eq!(count_sequence_every_dir(INPUT_PATH, "MAS"), 4512);
     }
 }
