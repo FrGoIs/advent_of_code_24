@@ -147,29 +147,29 @@ fn get_search_dirs(
         // Can go up
         search_dirs.push(SearchDir::N);
     }
-    if (col - sequence_length + 1 >= 0) {
+    if col - sequence_length + 1 >= 0 {
         // Can go left
         search_dirs.push(SearchDir::W);
     }
-    if (col_count - col - sequence_length >= 0) {
+    if col_count - col - sequence_length >= 0 {
         // can go right
         search_dirs.push(SearchDir::E);
     }
-    if (row_count - row - sequence_length >= 0) {
+    if row_count - row - sequence_length >= 0 {
         // Can go down
         search_dirs.push(SearchDir::S);
     }
 
-    if (search_dirs.contains(&SearchDir::N) && search_dirs.contains(&SearchDir::E)) {
+    if search_dirs.contains(&SearchDir::N) && search_dirs.contains(&SearchDir::E) {
         search_dirs.push(SearchDir::NE);
     }
-    if (search_dirs.contains(&SearchDir::N) && search_dirs.contains(&SearchDir::W)) {
+    if search_dirs.contains(&SearchDir::N) && search_dirs.contains(&SearchDir::W) {
         search_dirs.push(SearchDir::NW);
     }
-    if (search_dirs.contains(&SearchDir::S) && search_dirs.contains(&SearchDir::E)) {
+    if search_dirs.contains(&SearchDir::S) && search_dirs.contains(&SearchDir::E) {
         search_dirs.push(SearchDir::SE);
     }
-    if (search_dirs.contains(&SearchDir::S) && search_dirs.contains(&SearchDir::W)) {
+    if search_dirs.contains(&SearchDir::S) && search_dirs.contains(&SearchDir::W) {
         search_dirs.push(SearchDir::SW);
     }
 
@@ -181,7 +181,7 @@ mod day4_tests {
     use crate::day4::*;
 
     #[test]
-    fn finds_multidirectional_xmas() {
+    fn finds_test_xmas() {
         let result = count_xmas_every_dir(TEST_PATH);
         assert_eq!(result, 18);
     }
