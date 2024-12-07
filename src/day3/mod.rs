@@ -17,3 +17,13 @@ pub fn clean_multiplication_file() -> i32 {
         })
         .sum()
 }
+
+#[cfg(test)]
+mod test {
+    use crate::day3::clean_multiplication_file;
+
+    #[test]
+    fn part1() {
+        assert_eq!(188741603, clean_multiplication_file());
+    }
+}

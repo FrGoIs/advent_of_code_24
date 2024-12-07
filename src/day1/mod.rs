@@ -31,3 +31,16 @@ pub fn get_similarity(list1: &[i32], list2: &[i32]) -> i32 {
 
     similarity_score
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::day1::*;
+    #[test]
+    fn part1() {
+        assert_eq!(1666427, get_distance_and_similarity().0);
+    }
+    #[test]
+    fn part2() {
+        assert_eq!(24316233, get_distance_and_similarity().1);
+    }
+}

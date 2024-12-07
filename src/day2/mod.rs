@@ -4,7 +4,7 @@ pub fn get_reports_safety_count() -> i32 {
     let mut safety_count = 0;
 
     reports.into_iter().for_each(|report| {
-        let mut levels = report
+        let levels = report
             .split(' ')
             .map(|s| s.parse::<i32>().unwrap())
             .collect::<Vec<i32>>();
@@ -45,7 +45,8 @@ fn is_safe(levels: &Vec<i32>) -> bool {
 }
 
 fn bad_problem_dampened(mut levels: Vec<i32>) -> bool {
-    // This is bad because it is brute force, but it is nice how easy it was to implement.
+    // This is bad because it is brute force,
+    // but it is nice how easy it was to implement.
     for index in 0..levels.len() {
         let temp = levels.remove(index);
         if is_safe(&levels) {
@@ -55,4 +56,13 @@ fn bad_problem_dampened(mut levels: Vec<i32>) -> bool {
         }
     }
     false
+}
+
+#[cfg(test)]
+mod test {
+    use crate::day2::*;
+    #[test]
+    fn dampened_problem_test() {
+        assert_eq!(561, get_reports_safety_count());
+    }
 }
