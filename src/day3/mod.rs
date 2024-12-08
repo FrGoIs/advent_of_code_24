@@ -1,9 +1,41 @@
+use std::fs;
 use regex::Regex;
 
-pub fn clean_multiplication_file() -> i32 {
-    let input = include_str!("./inputs.txt");
+enum Instruction {
+    Do,
+    Dont
+}
+pub fn clean_multiplication_file(input_path: &str) -> i32 {
+    let input = fs::read_to_string(input_path).unwrap();
+    mult_match(&input)
+}
 
-    // parenthesis around \d indicate the groups we want to capture.
+fn instructed_mult_count(input_path: &str) -> i32 {
+    let input = fs::read_to_string(input_path).unwrap();
+    let instructions_regex = Regex::new(r"do\(\)|don't\(\)|mul\((\d{1,3}),(\d{1,3})\)");
+    let mut current_instruction = Instruction::Do;
+    let mut sum = 0;
+
+    instructions_regex.unwrap().find_iter(&input).for_each(|instruction| {
+        match instruction.as_str() {
+            "do()" => current_instruction = Instruction::Do,
+            "don't()" => current_instruction = Instruction::Dont,
+            _ => {
+                // we are dealing with a multiplication here
+                match current_instruction {
+                    Instruction::Do => {
+                        sum += mult_match(instruction.as_str());
+                    }
+                    Instruction::Dont => {}
+                }
+            }
+        }
+    });
+
+    sum
+}
+
+fn mult_match(input: &str) -> i32 {
     let multi_regex = Regex::new(r"mul\((\d{1,3}),(\d{1,3})\)");
 
     // Extract two digits from mul(n1,n2) statements and multiply them together.
@@ -20,10 +52,13 @@ pub fn clean_multiplication_file() -> i32 {
 
 #[cfg(test)]
 mod test {
-    use crate::day3::clean_multiplication_file;
+    use crate::day3::{clean_multiplication_file, instructed_mult_count};
 
     #[test]
     fn part1() {
-        assert_eq!(188741603, clean_multiplication_file());
+        assert_eq!(188741603, clean_multiplication_file("./src/day3/inputs.txt"));
     }
+    #[test]
+    fn part2() { assert_eq!(67269798, instructed_mult_count("./src/day3/inputs.txt")); }
+
 }
