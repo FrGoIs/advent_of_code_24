@@ -1,9 +1,10 @@
-use std::fs;
 use regex::Regex;
+use std::fs;
 
+const INPUT: &str = "./src/day3/inputs.txt";
 enum Instruction {
     Do,
-    Dont
+    Dont,
 }
 pub fn clean_multiplication_file(input_path: &str) -> i32 {
     let input = fs::read_to_string(input_path).unwrap();
@@ -16,21 +17,24 @@ fn instructed_mult_count(input_path: &str) -> i32 {
     let mut current_instruction = Instruction::Do;
     let mut sum = 0;
 
-    instructions_regex.unwrap().find_iter(&input).for_each(|instruction| {
-        match instruction.as_str() {
-            "do()" => current_instruction = Instruction::Do,
-            "don't()" => current_instruction = Instruction::Dont,
-            _ => {
-                // we are dealing with a multiplication here
-                match current_instruction {
-                    Instruction::Do => {
-                        sum += mult_match(instruction.as_str());
+    instructions_regex
+        .unwrap()
+        .find_iter(&input)
+        .for_each(|instruction| {
+            match instruction.as_str() {
+                "do()" => current_instruction = Instruction::Do,
+                "don't()" => current_instruction = Instruction::Dont,
+                _ => {
+                    // we are dealing with a multiplication here
+                    match current_instruction {
+                        Instruction::Do => {
+                            sum += mult_match(instruction.as_str());
+                        }
+                        Instruction::Dont => {}
                     }
-                    Instruction::Dont => {}
                 }
             }
-        }
-    });
+        });
 
     sum
 }
@@ -52,13 +56,14 @@ fn mult_match(input: &str) -> i32 {
 
 #[cfg(test)]
 mod test {
-    use crate::day3::{clean_multiplication_file, instructed_mult_count};
+    use crate::day3::{clean_multiplication_file, instructed_mult_count, INPUT};
 
     #[test]
     fn part1() {
-        assert_eq!(188741603, clean_multiplication_file("./src/day3/inputs.txt"));
+        assert_eq!(188741603, clean_multiplication_file(INPUT));
     }
     #[test]
-    fn part2() { assert_eq!(67269798, instructed_mult_count("./src/day3/inputs.txt")); }
-
+    fn part2() {
+        assert_eq!(67269798, instructed_mult_count(INPUT));
+    }
 }

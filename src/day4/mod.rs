@@ -41,6 +41,8 @@ pub fn count_sequence_every_dir(input_path: &str, sequence: &str) -> i32 {
 
     matches
 }
+// We are going to cheat a little bit and make this work only for sequences with 3 characters
+// TODO: Extend it
 pub fn count_crossed_sequence(input_path: &str, sequence: &str) -> i32 {
     let chars_to_find = sequence.chars().collect::<Vec<_>>();
     let input = fs::read_to_string(input_path).unwrap();
@@ -49,8 +51,50 @@ pub fn count_crossed_sequence(input_path: &str, sequence: &str) -> i32 {
     let row_count = matrix.len();
     let mut matches = 0;
 
-
-    3
+    // We will scan all rows and all columns
+    for row in 0..row_count - 2 {
+        for col in 0..col_count - 2 {
+            // check middle character
+            if matrix[row + 1][col + 1] == chars_to_find[1] {
+                // from here there are only four possibilities
+                if matrix[row][col] == matrix[row][col + 2] && matrix[row][col] == chars_to_find[0]
+                {
+                    if matrix[row + 2][col + 2] == matrix[row + 2][col]
+                        && matrix[row + 2][col] == chars_to_find[2]
+                    {
+                        matches += 1;
+                    }
+                }
+                if matrix[row + 2][col + 2] == matrix[row][col + 2]
+                    && matrix[row][col + 2] == chars_to_find[0]
+                {
+                    if matrix[row][col] == matrix[row + 2][col]
+                        && matrix[row][col] == chars_to_find[2]
+                    {
+                        matches += 1;
+                    }
+                }
+                if matrix[row + 2][col] == matrix[row + 2][col + 2]
+                    && matrix[row + 2][col] == chars_to_find[0]
+                {
+                    if matrix[row][col] == matrix[row][col + 2]
+                        && matrix[row][col] == chars_to_find[2]
+                    {
+                        matches += 1;
+                    }
+                }
+                if matrix[row][col] == matrix[row + 2][col] && matrix[row][col] == chars_to_find[0]
+                {
+                    if matrix[row + 2][col + 2] == matrix[row][col + 2]
+                        && matrix[row + 2][col + 2] == chars_to_find[2]
+                    {
+                        matches += 1;
+                    }
+                }
+            }
+        }
+    }
+    matches
 }
 
 fn check_for_sequence(
@@ -204,6 +248,6 @@ mod day4_tests {
 
     #[test]
     fn finds_crossed_sequence() {
-        assert_eq!(count_sequence_every_dir(INPUT_PATH, "MAS"), 4512);
+        assert_eq!(count_crossed_sequence(INPUT_PATH, "MAS"), 1930);
     }
 }
