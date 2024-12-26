@@ -1,7 +1,7 @@
 use regex::Regex;
 use std::fs;
 
-const INPUT: &str = "./src/day3/inputs.txt";
+const INPUT: &str = "./src/day3/input.txt";
 enum Instruction {
     Do,
     Dont,
