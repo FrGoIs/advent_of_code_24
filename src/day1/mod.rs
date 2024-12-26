@@ -1,5 +1,5 @@
 pub fn get_distance_and_similarity() -> (i32, i32) {
-    let input = include_str!("./inputs.txt");
+    let input = include_str!("input.txt");
     let (mut list1, mut list2) = (Vec::new(), Vec::new());
     let mut distance = 0;
     input

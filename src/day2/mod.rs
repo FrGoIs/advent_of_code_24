@@ -1,5 +1,5 @@
 pub fn get_reports_safety_count() -> i32 {
-    let input = include_str!("./inputs.txt");
+    let input = include_str!("input.txt");
     let reports = input.lines().collect::<Vec<&str>>();
     let mut safety_count = 0;
 
