@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fs;
 const TEST_PATH: &str = "./src/day5/test.txt";
 const INPUT_PATH: &str = "./src/day5/input.txt";
-fn sum_correct_middle_pages(input_path: &str) -> i32 {
+pub fn sum_correct_middle_pages(input_path: &str) -> i32 {
     let input = fs::read_to_string(input_path).expect("Could not read input file");
     let mut rules_map: HashMap<String, Vec<String>> = HashMap::new();
     let (rules_list, page_orderings) = input.split_once("\n\n").expect("bad input");
@@ -24,30 +24,30 @@ fn sum_correct_middle_pages(input_path: &str) -> i32 {
         .map(|o| o.split(",").collect::<Vec<&str>>())
         .collect::<Vec<Vec<&str>>>();
 
-
-    order.iter().map(|pages_list| {
-        check_pages_list(rules_map.clone(), pages_list)
-    }).sum()
-
+    order
+        .iter()
+        .map(|pages_list| check_pages_list(rules_map.clone(), pages_list))
+        .sum()
 }
 
 fn check_pages_list(rules: HashMap<String, Vec<String>>, pages_list: &Vec<&str>) -> i32 {
     let mut is_valid = true;
     for (index, page) in pages_list.iter().enumerate() {
-        for i in (0..index){
+        for i in (0..index) {
             match rules.get(page.clone()) {
                 Some(pages) => {
                     if pages.contains(&pages_list[i].to_string()) {
-                        is_valid = false; break; }
-                    },
+                        is_valid = false;
+                        break;
+                    }
+                }
                 None => {}
             }
         }
     }
     if is_valid {
         let middle_page = pages_list[(pages_list.len()) / 2];
-
-         return middle_page.parse::<i32>().unwrap();
+        return middle_page.parse::<i32>().unwrap();
     }
     0
 }
