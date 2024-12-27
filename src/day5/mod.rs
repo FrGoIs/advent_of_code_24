@@ -150,7 +150,6 @@ mod tests {
         ];
 
         let fixed = fix_page_orderings(rules_map.clone(), orderings.clone());
-        println!("Fixed pages: {:?}", fixed);
         assert_eq!(is_ordering_valid(rules_map.clone(), &fixed), true);
         assert_eq!(fixed.len(), orderings.len());
     }
