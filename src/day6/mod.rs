@@ -2,7 +2,6 @@ use crate::day6::BoardStates::{Free, Guard, Obstacle, Visited};
 use crate::day6::GuardDirection::{East, North, South, West};
 use crate::day6::SimulationState::Playable;
 use std::fs;
-use std::num::ParseIntError;
 
 const TEST_PATH: &str = "./src/day6/test.txt";
 const INPUT_PATH: &str = "./src/day6/input.txt";
@@ -30,7 +29,7 @@ enum SimulationState {
 type Board = Vec<Vec<BoardStates>>;
 fn calculate_guard_positions(input_path: &str) -> i32 {
     let input = fs::read_to_string(input_path).expect("Could not read file");
-    let mut sim_state = SimulationState::Playable;
+    let mut sim_state = Playable;
     let mut board = input
         .lines()
         .map(|line| {
@@ -47,6 +46,7 @@ fn calculate_guard_positions(input_path: &str) -> i32 {
                 .collect::<Vec<BoardStates>>()
         })
         .collect::<Board>();
+
     let last_row = board.len() - 1;
     let last_col = board[0].len() - 1;
 
@@ -62,6 +62,7 @@ fn simulate_step(board: &mut Board, last_row: usize, last_col: usize) -> Simulat
     board.iter().enumerate().for_each(|(x, row)| {
         row.iter().enumerate().for_each(|(y, state)| {
             if matches!(state, Guard(_)) {
+                // Get guard position and direction
                 guard_row = x;
                 guard_col = y;
                 match state {
@@ -76,15 +77,12 @@ fn simulate_step(board: &mut Board, last_row: usize, last_col: usize) -> Simulat
         North => {
             // Guard Exits through the top
             if guard_row == 0 {
-                board[guard_col][guard_col] = BoardStates::Visited;
-                simulation_state = SimulationState::Finished;
-                return simulation_state;
+                return mark_finished(board, guard_row, guard_col);
             }
             // If guard cant exist we need to look for where it moves
             match board[guard_row - 1][guard_col] {
                 Obstacle => {
-                    board[guard_row][guard_col] = Guard(East);
-                    return simulate_step(board, last_row, last_col);
+                    return try_around_obstacle(board, guard_row, guard_col, North);
                 }
                 _ => {
                     board[guard_row - 1][guard_col] = Guard(North);
@@ -94,14 +92,11 @@ fn simulate_step(board: &mut Board, last_row: usize, last_col: usize) -> Simulat
         }
         East => {
             if guard_col == last_col {
-                board[guard_row][guard_col] = Visited;
-                simulation_state = SimulationState::Finished;
-                return simulation_state;
+                return mark_finished(board, guard_row, guard_col);
             }
             match board[guard_row][guard_col + 1] {
                 Obstacle => {
-                    board[guard_row][guard_col] = Guard(South);
-                    return simulate_step(board, last_row, last_col);
+                    return try_around_obstacle(board, guard_row, guard_col, East);
                 }
                 _ => {
                     board[guard_row][guard_col + 1] = Guard(East);
@@ -111,14 +106,11 @@ fn simulate_step(board: &mut Board, last_row: usize, last_col: usize) -> Simulat
         }
         South => {
             if guard_row == last_row {
-                board[guard_col][guard_col] = Visited;
-                simulation_state = SimulationState::Finished;
-                return simulation_state;
+                return mark_finished(board, guard_row, guard_col);
             }
             match board[guard_row + 1][guard_col] {
                 Obstacle => {
-                    board[guard_row][guard_col] = Guard(West);
-                    return simulate_step(board, last_row, last_col);
+                    return try_around_obstacle(board, guard_row, guard_col, South);
                 }
                 _ => {
                     board[guard_row + 1][guard_col] = Guard(South);
@@ -128,14 +120,11 @@ fn simulate_step(board: &mut Board, last_row: usize, last_col: usize) -> Simulat
         }
         West => {
             if guard_col == 0 {
-                board[guard_row][guard_col] = Visited;
-                simulation_state = SimulationState::Finished;
-                return simulation_state;
+                return mark_finished(board, guard_row, guard_col);
             }
             match board[guard_row][guard_col - 1] {
                 Obstacle => {
-                    board[guard_row][guard_col] = Guard(North);
-                    return simulate_step(board, last_row, last_col);
+                    return try_around_obstacle(board, guard_row, guard_col, West);
                 }
                 _ => {
                     board[guard_row][guard_col - 1] = Guard(West);
@@ -145,6 +134,26 @@ fn simulate_step(board: &mut Board, last_row: usize, last_col: usize) -> Simulat
         }
     }
     simulation_state
+}
+
+fn mark_finished(board: &mut Board, guard_row: usize, guard_col: usize) -> SimulationState {
+    board[guard_row][guard_col] = Visited;
+    SimulationState::Finished
+}
+fn try_around_obstacle(
+    board: &mut Board,
+    guard_row: usize,
+    guard_col: usize,
+    dir: GuardDirection,
+) -> SimulationState {
+    match dir {
+        North => board[guard_row][guard_col] = Guard(East),
+        East => board[guard_row][guard_col] = Guard(South),
+        South => board[guard_row][guard_col] = Guard(West),
+        West => board[guard_row][guard_col] = Guard(North),
+    }
+
+    simulate_step(board, board.len() - 1, board[0].len() - 1)
 }
 fn count_visited_spaces(board: &Board) -> i32 {
     board
@@ -174,5 +183,9 @@ mod tests {
     #[test]
     fn part1_distinct_positions() {
         assert_eq!(calculate_guard_positions(INPUT_PATH), 4758);
+    }
+    #[test]
+    fn part2_count_loops() {
+
     }
 }
