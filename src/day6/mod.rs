@@ -47,17 +47,17 @@ fn calculate_guard_positions(input_path: &str) -> i32 {
         })
         .collect::<Board>();
 
-    let last_row = board.len() - 1;
-    let last_col = board[0].len() - 1;
 
     while matches!(sim_state, Playable) {
-        sim_state = simulate_step(&mut board, last_row, last_col);
+        sim_state = simulate_step(&mut board);
     }
     count_visited_spaces(&board)
 }
-fn simulate_step(board: &mut Board, last_row: usize, last_col: usize) -> SimulationState {
+fn simulate_step(board: &mut Board ) -> SimulationState {
     let (mut guard_row, mut guard_col, mut dir): (usize, usize, GuardDirection) = (0, 0, North);
     let mut simulation_state = Playable;
+    let last_row = board.len() - 1;
+    let last_col = board[last_row].len() - 1;
 
     board.iter().enumerate().for_each(|(x, row)| {
         row.iter().enumerate().for_each(|(y, state)| {
@@ -153,7 +153,7 @@ fn try_around_obstacle(
         West => board[guard_row][guard_col] = Guard(North),
     }
 
-    simulate_step(board, board.len() - 1, board[0].len() - 1)
+    simulate_step(board)
 }
 fn count_visited_spaces(board: &Board) -> i32 {
     board
@@ -178,7 +178,7 @@ mod tests {
 
     #[test]
     fn test_guard_positions() {
-        assert_eq!(calculate_guard_positions(TEST_PATH), 38);
+        assert_eq!(calculate_guard_positions(TEST_PATH), 41);
     }
     #[test]
     fn part1_distinct_positions() {
