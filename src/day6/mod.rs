@@ -1,4 +1,4 @@
-use crate::day6::BoardStates::{Free, Guard, Obstacle, Visited};
+use crate::day6::BoardState::{Free, Guard, Obstacle, Visited};
 use crate::day6::GuardDirection::{East, North, South, West};
 use crate::day6::SimulationState::Playable;
 use std::fs;
@@ -6,7 +6,7 @@ use std::fs;
 const TEST_PATH: &str = "./src/day6/test.txt";
 const INPUT_PATH: &str = "./src/day6/input.txt";
 
-#[derive(Debug, Eq, PartialEq, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 enum GuardDirection {
     North,
     East,
@@ -14,8 +14,8 @@ enum GuardDirection {
     West,
 }
 
-#[derive(Debug, Eq, PartialEq)]
-enum BoardStates {
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+enum BoardState {
     Free,
     Guard(GuardDirection),
     Obstacle,
@@ -26,7 +26,7 @@ enum SimulationState {
     Finished,
 }
 
-type Board = Vec<Vec<BoardStates>>;
+type Board = Vec<Vec<BoardState>>;
 fn calculate_guard_positions(input_path: &str) -> i32 {
     let input = fs::read_to_string(input_path).expect("Could not read file");
     let mut sim_state = Playable;
@@ -43,7 +43,7 @@ fn calculate_guard_positions(input_path: &str) -> i32 {
                     '#' => Obstacle,
                     _ => unreachable!(),
                 })
-                .collect::<Vec<BoardStates>>()
+                .collect::<Vec<BoardState>>()
         })
         .collect::<Board>();
 
@@ -56,8 +56,6 @@ fn calculate_guard_positions(input_path: &str) -> i32 {
 fn simulate_step(board: &mut Board ) -> SimulationState {
     let (mut guard_row, mut guard_col, mut dir): (usize, usize, GuardDirection) = (0, 0, North);
     let mut simulation_state = Playable;
-    let last_row = board.len() - 1;
-    let last_col = board[last_row].len() - 1;
 
     board.iter().enumerate().for_each(|(x, row)| {
         row.iter().enumerate().for_each(|(y, state)| {
@@ -73,72 +71,72 @@ fn simulate_step(board: &mut Board ) -> SimulationState {
         })
     });
 
-    match dir {
+    if can_exit(board, guard_row, guard_col, dir) {
+        return mark_finished(board, guard_row, guard_col);
+    }
+
+    if is_obstacle_ahead(board, guard_row, guard_col, dir) {
+        return try_around_obstacle(board, guard_row, guard_col, dir);
+    }
+    // If cant exit nor is there an obstacle, move ahead.
+    move_along_dir(board, guard_row, guard_col, dir);
+
+    simulation_state
+}
+
+fn is_obstacle_ahead(board: &mut Board, row: usize, col: usize, dir: GuardDirection) -> bool {
+    let state = match dir {
         North => {
-            // Guard Exits through the top
-            if guard_row == 0 {
-                return mark_finished(board, guard_row, guard_col);
-            }
-            // If guard cant exist we need to look for where it moves
-            match board[guard_row - 1][guard_col] {
-                Obstacle => {
-                    return try_around_obstacle(board, guard_row, guard_col, North);
-                }
-                _ => {
-                    board[guard_row - 1][guard_col] = Guard(North);
-                    board[guard_row][guard_col] = Visited;
-                }
-            }
+            board[row - 1][col]
         }
         East => {
-            if guard_col == last_col {
-                return mark_finished(board, guard_row, guard_col);
-            }
-            match board[guard_row][guard_col + 1] {
-                Obstacle => {
-                    return try_around_obstacle(board, guard_row, guard_col, East);
-                }
-                _ => {
-                    board[guard_row][guard_col + 1] = Guard(East);
-                    board[guard_row][guard_col] = Visited;
-                }
-            }
+              board[row][col + 1]
         }
         South => {
-            if guard_row == last_row {
-                return mark_finished(board, guard_row, guard_col);
-            }
-            match board[guard_row + 1][guard_col] {
-                Obstacle => {
-                    return try_around_obstacle(board, guard_row, guard_col, South);
-                }
-                _ => {
-                    board[guard_row + 1][guard_col] = Guard(South);
-                    board[guard_row][guard_col] = Visited;
-                }
-            }
+             board[row + 1][col]
         }
         West => {
-            if guard_col == 0 {
-                return mark_finished(board, guard_row, guard_col);
-            }
-            match board[guard_row][guard_col - 1] {
-                Obstacle => {
-                    return try_around_obstacle(board, guard_row, guard_col, West);
-                }
-                _ => {
-                    board[guard_row][guard_col - 1] = Guard(West);
-                    board[guard_row][guard_col] = Visited;
-                }
-            }
+             board[row][col - 1]
         }
+    };
+
+    matches!(&state, Obstacle)
+}
+
+fn can_exit(board: &mut Board, row: usize, col: usize, dir: GuardDirection) -> bool {
+    let last_row = board.len() - 1;
+    let last_col = board[last_row].len() - 1;
+
+    match dir {
+        North => {row == 0},
+        East => {col == last_col},
+        South => {row == last_row},
+        West => {col == 0 }
     }
-    simulation_state
 }
 
 fn mark_finished(board: &mut Board, guard_row: usize, guard_col: usize) -> SimulationState {
     board[guard_row][guard_col] = Visited;
     SimulationState::Finished
+}
+
+fn move_along_dir(board: &mut Board, guard_row: usize, guard_col: usize, dir: GuardDirection) {
+    match dir {
+        North => {
+            board[guard_row - 1][guard_col] = Guard(North);
+        }
+        East => {
+            board[guard_row][guard_col + 1] = Guard(East);
+        }
+        South => {
+            board[guard_row + 1][guard_col] = Guard(South);
+
+        }
+        West => {
+            board[guard_row][guard_col - 1] = Guard(West);
+        }
+    }
+    board[guard_row][guard_col] = Visited;
 }
 fn try_around_obstacle(
     board: &mut Board,
